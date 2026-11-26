@@ -1,0 +1,11 @@
+# Weak pipeline: no tests, no vulnerability or dependency scanning,
+# and a retired agent image.
+trigger:
+  - main
+
+pool:
+  vmImage: ubuntu-18.04
+
+steps:
+  - script: dotnet build LegacyOrders.Api.sln --configuration Release
+    displayName: Build

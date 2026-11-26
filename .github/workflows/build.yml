@@ -1,0 +1,16 @@
+# Weak workflow: outdated actions, no tests, no scanning.
+name: build
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.100'
+      - run: dotnet build LegacyOrders.Api.sln

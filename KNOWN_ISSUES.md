@@ -1,0 +1,36 @@
+# Known issues (answer key)
+
+This repository is a **deliberately unhealthy** test fixture for a repository health scanner. Every issue below was planted on purpose. Do not treat these as accidental defects, and **never deploy this application**.
+
+A minimal README exists only as a safety warning. A scanner looking at a real "bad" estate should still treat **missing or inadequate documentation** as a signal; see the basics row below.
+
+Verification of package versions was done on 26 November 2026 against the GitHub Advisory Database, NuGet advisory banners, and the NuGet v3 catalog (latest stable versions as of that date).
+
+## Planted issues
+
+| Category | File | What | Expected scanner signal |
+| --- | --- | --- | --- |
+| Framework currency | `src/LegacyOrders.Api/LegacyOrders.Api.csproj` | `TargetFramework` is `net6.0`. .NET 6 reached end of support on 12 November 2024. | Framework / runtime lag; unsupported or end-of-life target framework. |
+| SDK pin | `global.json` | SDK pinned to `6.0.100` (first GA of the 6.0 band), with `rollForward: latestFeature` so any later 6.0.x SDK may still build it. | Outdated / end-of-life SDK; SDK version far behind current 6.0 patches and current LTS. |
+| Vulnerable package | `src/LegacyOrders.Api/LegacyOrders.Api.csproj` | `Newtonsoft.Json` `12.0.1`. GitHub advisory [GHSA-5crp-9r3c-p9vr](https://github.com/advisories/GHSA-5crp-9r3c-p9vr) / [CVE-2024-21907](https://nvd.nist.gov/vuln/detail/CVE-2024-21907) (High, 7.5). Affected: `< 13.0.1`. NuGet lists this advisory on the 12.0.1 package page. Latest stable at verification: `13.0.4` (one major behind, plus the CVE). | Vulnerable dependency (High); also outdated package. |
+| Vulnerable package | `src/LegacyOrders.Api/LegacyOrders.Api.csproj` | `System.Text.Encodings.Web` `4.5.0`. GitHub advisory [GHSA-ghhp-997w-qr28](https://github.com/advisories/GHSA-ghhp-997w-qr28) / [CVE-2021-26701](https://nvd.nist.gov/vuln/detail/CVE-2021-26701) (Critical, 9.8, RCE). Affected range includes `4.0.0`–`4.5.0`. NuGet shows a critical advisory banner on 4.5.0. Latest stable at verification: `11.0.0` (seven majors behind). | Vulnerable dependency (Critical); major-version drift. |
+| Vulnerable package | `src/LegacyOrders.Api/LegacyOrders.Api.csproj` | `System.Data.SqlClient` `4.8.5`. GitHub advisory [GHSA-98g6-xh36-x2p7](https://github.com/advisories/GHSA-98g6-xh36-x2p7) / [CVE-2024-0056](https://nvd.nist.gov/vuln/detail/CVE-2024-0056) (High, 8.7, SQL data provider security feature bypass). Affected: `< 4.8.6`. NuGet shows a high advisory banner on 4.8.5. Latest at verification: `4.9.1` (same major; the signal here is the CVE, not major lag). | Vulnerable dependency (High). |
+| Outdated package, with transitive advisories | `src/LegacyOrders.Api/LegacyOrders.Api.csproj` | `Microsoft.AspNetCore.Authentication.JwtBearer` `6.0.0`. No *direct* package-level advisory was found for 6.0.0 itself. It restores transitive `Microsoft.IdentityModel.JsonWebTokens` `6.10.0` and `System.IdentityModel.Tokens.Jwt` `6.10.0`, both flagged by `dotnet list package --vulnerable` as [GHSA-59j7-ghrg-fj52](https://github.com/advisories/GHSA-59j7-ghrg-fj52) / [CVE-2024-21319](https://nvd.nist.gov/vuln/detail/CVE-2024-21319) (Moderate, DoS). Latest stable at verification: `11.0.0` (five majors behind). Last patch on the 6.0 line is `6.0.36`. | Package major-version drift (2+ majors behind); transitive vulnerable JWT dependencies (Moderate). |
+| Vulnerable and outdated package | `src/LegacyOrders.Api/LegacyOrders.Api.csproj` | `Swashbuckle.AspNetCore` `5.6.3` (last 5.x). Transitive `Swashbuckle.AspNetCore.SwaggerUI` is affected by [GHSA-qrmm-w75w-3wpx](https://github.com/advisories/GHSA-qrmm-w75w-3wpx) (Moderate, SSRF / phishing via Swagger UI `?url=`; no CVE assigned). Affected: `< 6.3.0`. Latest stable at verification: `11.0.1` (six majors behind). | Vulnerable dependency (Moderate, via SwaggerUI); major-version drift. |
+| Outdated package | `src/LegacyOrders.Api/LegacyOrders.Api.csproj` | `Serilog.AspNetCore` `3.4.0`. No GitHub or NuGet advisory found for 3.4.0. Latest stable at verification: `11.0.0` (eight majors behind). | Package major-version drift (2+ majors behind). |
+| Missing tests | (absent) | No test project, no test files, and CI does not run tests. | Missing tests / zero test projects / no coverage. |
+| Missing ownership | (absent; no `CODEOWNERS`) | No `CODEOWNERS` file. | Missing ownership / CODEOWNERS. |
+| No branch protection | (repo settings) | Default branch is unprotected. This is a repository setting, not a file in the tree. | Missing branch policies / unprotected default branch. |
+| No lock file | (absent) | No `packages.lock.json` (and no `Directory.Packages.props`). Package versions can drift at restore time for floating ranges; here versions are pinned in the `.csproj`, but there is still no lockfile. | Missing dependency lock file. |
+| Docs (qualified) | `README.md` | A short README is present **only** so visitors see the "never deploy" warning. A real unhealthy repo would often have **no** README at all. Scanners that treat "has a README" as a pass should be interpreted with this caveat. | If the scanner scores missing docs, this fixture will *not* fail that check because of the safety README. Record it as a known limitation of the fixture, not as a healthy docs signal. |
+| Weak CI | `azure-pipelines.yml` | Builds only. No test step, no vulnerability or dependency scan. Agent image pinned to retired `ubuntu-18.04`. | Weak or outdated pipeline; missing test and security steps; deprecated agent image. |
+| Weak CI | `.github/workflows/build.yml` | Builds only. No tests or scanning. Uses outdated `actions/checkout@v2` and `actions/setup-dotnet@v1`, runner `ubuntu-20.04`, and pins `dotnet-version: 6.0.100`. | Weak or outdated workflow; missing test and security steps; outdated actions and runner. |
+| Hard-coded credential placeholder | `src/LegacyOrders.Api/Data/OrderRepository.cs` | Connection string is a hard-coded literal: `Server=localhost;Database=Orders;User Id=sa;Password=NotARealPassword123!`. This is an obviously fake placeholder, not a real secret. | Hard-coded connection string / embedded credential pattern (secret scanners may or may not flag a clearly fake password; a health scanner should still flag configuration in source). |
+| Exception swallowing | `src/LegacyOrders.Api/Program.cs`, `src/LegacyOrders.Api/Data/OrderRepository.cs` | Catch-all `catch (Exception)` blocks that swallow errors on startup and on every data call. | Code smell / reliability: swallowed exceptions. |
+| Sync-over-async | `src/LegacyOrders.Api/Controllers/OrdersController.cs` | Controller actions call `_orders.*Async(...).Result` and `.GetAwaiter().GetResult()`, blocking the request thread. | Code smell: sync-over-async / `.Result` on async calls. |
+
+## Intentionally not included
+
+- No real secrets, tokens, or key material. The connection-string password is a labelled fake placeholder and should not trip GitHub push protection.
+- No exploit payloads or intentionally exploitable endpoints beyond the outdated packages and the code smells above.
+- This application is not wired to a real database and is not meant to run in any environment other than local scanner trials.
