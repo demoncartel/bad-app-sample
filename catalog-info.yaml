@@ -1,0 +1,81 @@
+# Backstage catalog entities for this repository.
+#
+# Group and System are included so this file can be registered on its own
+# (Register Existing Component). In a real organisation those entities usually
+# live in a central org catalog — drop or replace them here if demoncartel
+# already defines group:demoncartel/platform or system:repo-health-samples.
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: platform
+  namespace: demoncartel
+  title: Platform
+  description: Placeholder platform team for standalone ingestion of this sample. Prefer a central org catalog in a real deployment.
+spec:
+  type: team
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: repo-health-samples
+  title: Repo health samples
+  description: Sample applications used as known-good or known-bad targets for repository health scanning.
+  tags:
+    - sample
+spec:
+  owner: group:demoncartel/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: legacy-orders-api
+  title: Legacy Orders API
+  description: >
+    Deliberately insecure and outdated ASP.NET Core "legacy orders" API,
+    used as a known-bad target for repository health scanners. Never deploy.
+  tags:
+    - dotnet
+    - net6
+    - sample
+    - intentionally-unhealthy
+  annotations:
+    github.com/project-slug: demoncartel/bad-app-sample
+    backstage.io/techdocs-ref: dir:.
+    backstage.io/source-location: url:https://github.com/demoncartel/bad-app-sample/
+  links:
+    - url: https://github.com/demoncartel/bad-app-sample/blob/main/README.md
+      title: README
+      icon: github
+    - url: https://github.com/demoncartel/bad-app-sample/blob/main/KNOWN_ISSUES.md
+      title: Known issues (answer key)
+      icon: github
+spec:
+  type: service
+  lifecycle: deprecated
+  owner: group:demoncartel/platform
+  system: repo-health-samples
+  providesApis:
+    - legacy-orders-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: legacy-orders-api
+  title: Legacy Orders API
+  description: >
+    OpenAPI description of the three orders endpoints. Deliberately insecure
+    and outdated: test fixture for health scanning. Never deploy.
+  tags:
+    - dotnet
+    - net6
+    - sample
+    - intentionally-unhealthy
+spec:
+  type: openapi
+  lifecycle: deprecated
+  owner: group:demoncartel/platform
+  system: repo-health-samples
+  definition:
+    $text: ./docs/openapi.yaml

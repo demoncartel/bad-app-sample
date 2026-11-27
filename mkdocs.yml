@@ -1,0 +1,8 @@
+site_name: Legacy Orders API
+site_description: Deliberately insecure and outdated test fixture for health scanning. Never deploy.
+
+nav:
+  - Home: index.md
+
+plugins:
+  - techdocs-core
